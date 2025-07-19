@@ -30,10 +30,18 @@ const Index = () => {
   }, [currentStep]);
   
   // Mock data для результатов
+  const mockResults = [
+    { id: 1, original: 'г. Москва, ул. Тверская д. 10', normalized: 'г. Москва, ул. Тверская, д. 10', status: 'success' },
+    { id: 2, original: 'СПб, Невский пр-т', normalized: 'г. Санкт-Петербург, Невский проспект', status: 'warning' },
+    { id: 3, original: 'Екатеринбург, Ленина 52a', normalized: 'г. Екатеринбург, ул. Ленина, д. 52А', status: 'success' },
+    { id: 4, original: 'Новосибирск, К. Маркса 15', normalized: 'г. Новосибирск, ул. Карла Маркса, д. 15', status: 'success' },
+    { id: 5, original: 'Казань центр', normalized: 'г. Казань', status: 'error' },
+  ];
+
   const mockErrors = [
     { id: 1, address: 'г. Москва, ул. Тверская д. 10', error: 'Отсутствует строение', severity: 'medium' },
     { id: 2, address: 'СПб, Невский пр-т', error: 'Неполный адрес', severity: 'high' },
-    { id: 3, address: 'Екатеринбург, Ленина 52a', error: 'Некорректный формат дома', severity: 'low' },
+    { id: 3, address: 'Казань центр', error: 'Слишком общий адрес', severity: 'high' },
   ];
 
   const mockStats = {
@@ -98,7 +106,7 @@ const Index = () => {
               <Icon name="Zap" size={24} className="text-green-600" />
             </div>
             <h3 className="font-semibold text-slate-900 mb-2">Обработка</h3>
-            <p className="text-slate-600 text-sm">ИИ анализирует и нормализует адреса</p>
+            <p className="text-slate-600 text-sm">Наш код обрабатывает данные и выводит данные и ошибки</p>
           </div>
           
           <div className="text-center">
@@ -192,6 +200,49 @@ const Index = () => {
               </Card>
             </div>
 
+            {/* Results Table */}
+            <Card className="border-0 shadow-lg mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="CheckCircle" size={20} className="text-green-500" />
+                  Все результаты обработки
+                </CardTitle>
+                <CardDescription>
+                  Полный список обработанных адресов с результатами нормализации
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Исходный адрес</TableHead>
+                      <TableHead>Нормализованный адрес</TableHead>
+                      <TableHead>Статус</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockResults.map((result) => (
+                      <TableRow key={result.id}>
+                        <TableCell className="font-medium">{result.original}</TableCell>
+                        <TableCell>{result.normalized}</TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant={result.status === 'success' ? 'default' : 
+                                   result.status === 'warning' ? 'secondary' : 'destructive'}
+                            className={result.status === 'success' ? 'bg-green-100 text-green-700' : 
+                                     result.status === 'warning' ? 'bg-yellow-100 text-yellow-700' : ''}
+                          >
+                            {result.status === 'success' ? 'Успешно' : 
+                             result.status === 'warning' ? 'Предупреждение' : 'Ошибка'}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
             {/* Errors Table */}
             <Card className="border-0 shadow-lg">
               <CardHeader>
@@ -200,7 +251,7 @@ const Index = () => {
                   Найденные ошибки
                 </CardTitle>
                 <CardDescription>
-                  Список адресов, требующих внимания
+                  Список адресов, требующих внимания и исправления
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -208,7 +259,7 @@ const Index = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Адрес</TableHead>
-                      <TableHead>Ошибка</TableHead>
+                      <TableHead>Описание ошибки</TableHead>
                       <TableHead>Критичность</TableHead>
                     </TableRow>
                   </TableHeader>
